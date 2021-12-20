@@ -3,7 +3,7 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-
+import json
 
 url = 'https://www.indeed.com/jobs?'
 site = 'https://www.indeed.com'
@@ -67,6 +67,7 @@ def get_all_items(): #mengambil semua data
     # * company link
     # * company address
 
+    jobs_list = [] #membuat variabel untuk append di bawah nanti
     for item in contents:
         title = item.find('h2','jobTitle').text
         company = item.find('span','companyName')
@@ -76,9 +77,44 @@ def get_all_items(): #mengambil semua data
             company_link = site + company.find('a')['href']
         except:
             company_link = 'Link is not available'
-        print(company_link)
+
 
         #selanjutnya setelah semua terdefinisi, kita melakukan sorting data dan membuat dictionary (merapihkan)
+
+
+        data_dict = {
+             'title' : title,
+              'company_name' : company_name,
+              'company_link' : company_link
+         }
+
+        #hasilnya akan keluar sudah tersusun seperti list dictionary di atas
+
+
+        #jika mau append dalam satu baris data, bisa menggunakan fungsi append, contoh kita buat dulu variable 'joblist' lalu tuliskan perintah appendnya
+
+
+        jobs_list.append(data_dict)
+
+
+    #print(jobs_list) #jika perintah print di luar indentasi loop, maka akan diprint dalam satu list
+    #print(len(jobs_list)) # untuk mengetahui jumlah data dalam satu list tersebut
+    #print('jumlah datanya adalah sebanyak',len(jobs_list),'buah') bisa juga dengan perintah ini, supaya ada penambahan text
+    #print(f'jumlah data: {len(jobs_list)}') perintah ini juga bisa digunakan, hasilnya nanti "jumlah data : 15"
+
+    #lanjut mengolah hasil data menjadi sebuah json file, import library json dulu di awal coding (import json)
+    #writing json file
+
+    try:
+        os.mkdir('json_result') #membuat file direktory dengan library os sebagai directory baru
+    except FileExistsError:
+        pass
+
+    with open('json_result/job_list.json', 'w+') as json_data:
+        json.dump(jobs_list, json_data)       #perhatikan fungsi json.dump tersebut, ada perbedaan dengan json.dumps
+
+    print('Json Created')  #data akan tersimpan di folder json
+
 
 if __name__ == '__main__':
     get_all_items()
