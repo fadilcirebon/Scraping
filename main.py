@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 
 url = 'https://www.indeed.com/jobs?'
+site = 'https://www.indeed.com'
 params = {
     'q':'python developer',
     'l' : 'new york'
@@ -24,7 +25,7 @@ def get_total_pages():
     res = requests.get(url, params=params, headers=headers)
 
     try:
-        os.mkdir('temp')
+        os.mkdir('temp') #membuat file direktory dengan library os
     except FileExistsError:
         pass
 
@@ -32,9 +33,52 @@ def get_total_pages():
         outfile.write(res.text)
         outfile.close()
 
-    #scraping steps:
+    total_pages = []
+
+    #scraping steps: mengambil semua pagination
     soup = BeautifulSoup(res.text, 'html.parser')
-    print(soup.prettify())
+    pagination = soup.find('ul','pagination-list')
+    pages = pagination.find_all('li')
+    for page in pages:
+        total_pages.append(page.text)
+
+    total = int(max(total_pages))
+    return total
+
+def get_all_items(): #mengambil semua data
+    params = {
+        'q': 'python developer',
+        'l': 'new york'
+    }
+    #definisikan parsernya dulu sebagai berikut:
+    res = requests.get(url, params=params, headers=headers)
+
+    with open('temp/res.html', 'w+') as outfile:
+        outfile.write(res.text)
+        outfile.close()
+    soup = BeautifulSoup(res.text, 'html.parser')
+
+    #definisi scraping
+    contents = soup.find_all('table','jobCard_mainContent big6_visualChanges')
+
+    #selanjutnya mengambil item sebagai berikut:
+    # *title
+    # * company name
+    # * company link
+    # * company address
+
+    for item in contents:
+        title = item.find('h2','jobTitle').text
+        company = item.find('span','companyName')
+        company_name = company.text #bagian ini penting karena jika tidak dilakukan parser.text di sini link tidak keluar.
+
+        try:
+            company_link = site + company.find('a')['href']
+        except:
+            company_link = 'Link is not available'
+        print(company_link)
+
+        #selanjutnya setelah semua terdefinisi, kita melakukan sorting data dan membuat dictionary (merapihkan)
 
 if __name__ == '__main__':
-    get_total_pages()
+    get_all_items()
