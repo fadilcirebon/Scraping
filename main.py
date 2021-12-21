@@ -4,6 +4,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import json
+import pandas as pd
 
 url = 'https://www.indeed.com/jobs?'
 site = 'https://www.indeed.com'
@@ -113,8 +114,18 @@ def get_all_items(): #mengambil semua data
     with open('json_result/job_list.json', 'w+') as json_data:
         json.dump(jobs_list, json_data)       #perhatikan fungsi json.dump tersebut, ada perbedaan dengan json.dumps
 
-    print('Json Created')  #data akan tersimpan di folder json
+    print('Json Created')  #data akan tersimpan di folder json, baris ini sudah diexekusi sehingga di kasih #
 
+    # kita lanjutkan untuk MENGELUARKAN DATA DALAM BENTUK CSV ATAU EXCEL
+    # install sebelumnya library pandas
+    # import pandas seperti code diatas
+
+    df = pd.DataFrame(jobs_list)
+    df.to_csv('indeed_data.csv', index=False) #akan muncul file indeed_data.csv dan xlsx
+    df.to_excel('indeed_data.xlsx', index=False)
+
+    #data created
+    print('Data Created Success')
 
 if __name__ == '__main__':
     get_all_items()
